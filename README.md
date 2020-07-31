@@ -13,5 +13,6 @@ Generate 5 files of 1GB of random data each.
 `$ rand-file 1G 5` 
 
  ## TODO
+ - Compute checksums after all files are written
  - In memory checksum verification before written to file system
  - Option to skip checksum verification 
