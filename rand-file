@@ -19,8 +19,18 @@ clearLine()
     printf "\r"
 }
 
+clearPrintLast=""
+
+clearPrint()
+{
+    clearLine ${#clearPrintLast}
+    clearPrintLast="$@"
+    printf "$@"
+}
+
 size=$1
 count=$2
+checksum=$3
 
 if test -z $1; then
     echoerr "Missing size argument"
@@ -34,16 +44,25 @@ elif test $2 -lt 1; then
     exit 1
 fi
 
+if test -z $3; then
+    checksum=sha1sum
+fi
+
 basename=random-$1-
 
 size=$(numfmt --from=iec $1)
+checksumFile="checksums-${checksum}.txt"
+
+printf "" > ${checksumFile}
 
 for (( i=1; i <= count; i++ )); do
     file=${basename}${i}.bin
+
+    clearPrint "Generating ${file}"
+
     head -c ${size} /dev/urandom > ${file}
-    output="Verifying ${file}"
-    length=${#output}
-    printf "${output}"
+    
+    clearPrint "Checking ${file}"
     
     fileSize=$(stat --printf="%s" ${file})
 
@@ -52,12 +71,12 @@ for (( i=1; i <= count; i++ )); do
         exit 1
     fi
 
-    sha1sum ${file} > ${file}.sha1
+    $checksum ${file} >> ${checksumFile}
 
-    output=$(sha1sum -c ${file}.sha1)
-    rm ${file}.sha1
-    
-    clearLine ${length}
-    echo "${output}"
+    clearPrint "Done ${file}\n"
 
 done
+
+echo "Verifying files"
+
+$checksum -c ${checksumFile}
