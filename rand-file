@@ -28,6 +28,11 @@ clearPrint()
     printf "$@"
 }
 
+none()
+{
+    :
+}
+
 size=$1
 count=$2
 checksum=$3
@@ -76,6 +81,11 @@ for (( i=1; i <= count; i++ )); do
     clearPrint "Done ${file}\n"
 
 done
+
+if test "$checksum" = "none"; then
+    rm ${checksumFile}
+    exit
+fi
 
 echo "Verifying files"
 
