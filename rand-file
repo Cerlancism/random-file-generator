@@ -1,8 +1,23 @@
-#!/bin/bash
+#!/bin/sh
 
 set -o errexit
 
-echoerr() { echo "$@" 1>&2; }
+echoerr() 
+{ 
+    echo "$@" 1>&2 
+}
+
+repl() 
+{
+     printf "$1"'%.s' $(eval "echo {1.."$(($2))"}")
+} 
+
+clearLine() 
+{
+    printf "\r"
+    repl " " $1
+    printf "\r"
+}
 
 size=$1
 count=$2
@@ -42,8 +57,7 @@ for (( i=1; i <= count; i++ )); do
     output=$(sha1sum -c ${file}.sha1)
     rm ${file}.sha1
     
-    printf "\r"
-    printf ' %.0s\r' {1..$length}
+    clearLine ${length}
     echo "${output}"
 
 done
