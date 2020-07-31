@@ -12,7 +12,7 @@ Generate 1 file of 1024 random bytes with sha1 checksum
 Generate 5 files of 1GB of random data each and check with sha512sum.  
 `$ rand-file 1G 5 sha512sum` 
 
-No checksum verification
+No checksum verification  
 `$ rand-file 1G 5 none`
 
  ## TODO
