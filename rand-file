@@ -65,8 +65,12 @@ for  i in $(seq 1 $count); do
 
     clearPrint "Generating ${file}"
 
-    head -c ${size} /dev/urandom > ${file}
-    
+    rng=$(head -c ${size} /dev/urandom | xxd -p)
+
+    clearPrint "Writing ${file}"
+
+    echo "$rng" | xxd -r -p > ${file}
+
     clearPrint "Checking ${file}"
     
     fileSize=$(stat --printf="%s" ${file})
@@ -76,7 +80,7 @@ for  i in $(seq 1 $count); do
         exit 1
     fi
 
-    $checksum ${file} >> ${checksumFile}
+    echo "$rng" | xxd -r -p | $checksum ${file} >> ${checksumFile}
 
     clearPrint "Done ${file}\n"
 
