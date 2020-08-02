@@ -60,7 +60,7 @@ checksumFile="checksums-${checksum}.txt"
 
 printf "" > ${checksumFile}
 
-for (( i=1; i <= count; i++ )); do
+for  i in $(seq 1 $count); do
     file=${basename}${i}.bin
 
     clearPrint "Generating ${file}"
