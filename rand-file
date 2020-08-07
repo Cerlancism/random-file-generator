@@ -1,7 +1,48 @@
 #!/bin/sh
+## $PROG 1.0.0 - Generate randoms files and checks their integrity
+## 
+## Usage: $PROG [OPTION...] [COMMAND]...
+## Options:
+##   -s, --size SIZE=4K                 Size (numfmt iec accepted: 1K, 1M, 1G...) of random bytes per file. 
+##   -n, --number NUMBER=1              Number of files to generate
+##   -c, --checksum CHECKSUM=sha1sum    Checksum function to verify the files. Use none for no verification.
+## Commands:
+##   -h, --help                         Displays this help and exists
+##   -v, --version                      Displays output version and exists
+##   -d, --delete                       Clears all the generated files
+## Examples:
+##   $PROG -s 1G -n 5 -c sha512sum
+##   $PROG -s 1G -n 5 -c none
+PROG=${0##*/}
 
 set -o errexit
 
+# Configs
+size=4K
+count=1
+checksum=sha1sum
+
+# Commands
+help() 
+{
+    grep "^##" "$0" | sed -e "s/^...//" -e "s/\$PROG/$PROG/g"
+    exit 0
+}
+
+version() 
+{
+    help | head -1
+    exit 0
+}
+
+delete()
+{
+    rm ./random-*.bin
+    rm ./checksums-*.txt
+    exit 0
+}
+
+# Helper functions
 echoerr() 
 { 
     echo "$@" 1>&2 
@@ -33,29 +74,44 @@ none()
     :
 }
 
-size=$1
-count=$2
-checksum=$3
+# Args Config functions
+size()
+{
+    size=$1
+    return 1
+}
 
-if test -z $1; then
-    echoerr "Missing size argument"
-    exit 1
-fi
+number()
+{
+    if test -z $1; then
+        count=1
+    elif test $1 -lt 1; then
+        echoerr "Count argument must be more than 1"
+        exit 1
+    fi
 
-if test -z $2; then
-    count=1
-elif test $2 -lt 1; then
-    echoerr "Count argument must be more than 1"
-    exit 1
-fi
+    count=$1
+    return 1
+}
 
-if test -z $3; then
-    checksum=sha1sum
-fi
+checksum()
+{
+    checksum=$1
+    return 1
+}
 
-basename=random-$1-
+# Parsing CLI Args
+[ $# = 0 ] && help
+while [ $# -gt 0 ]; do
+  CMD=$(grep -m 1 -Po "^## *$1, --\K[^= ]*|^##.* --\K${1#--}(?:[= ])" rand-file | sed -e "s/-/_/g")
+  if [ -z "$CMD" ]; then echo "ERROR: Command '$1' not supported"; exit 1; fi
+  shift; eval "$CMD" $@ || shift $? 2> /dev/null
+done
 
-size=$(numfmt --from=iec $1)
+# Entry
+basename=random-$size-
+
+size=$(numfmt --from=iec $size)
 checksumFile="checksums-${checksum}.txt"
 
 printf "" > ${checksumFile}
@@ -79,7 +135,6 @@ for i in $(seq 1 $count); do
     $checksum ${file} >> ${checksumFile}
 
     clearPrint "Done ${file}\n"
-
 done
 
 if test "$checksum" = "none"; then
