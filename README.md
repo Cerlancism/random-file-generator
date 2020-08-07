@@ -2,7 +2,7 @@
 Shell script to generate random data files of specified size and count.
 
 ## Usage
-`rand-file [-s --size 1K] [-n --number 1] [-c --checksum sha1sum]`
+`rand-file [-s --size 4K] [-n --number 1] [-c --checksum sha1sum]`
 
 ## Examples
 
