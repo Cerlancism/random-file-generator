@@ -13,6 +13,7 @@
 ## Examples:
 ##   $PROG -s 1G -n 5 -c sha512sum
 ##   $PROG -s 1G -n 5 -c none
+SCRIPT_DIR="$(dirname "$0")"
 PROG=${0##*/}
 
 set -o errexit
@@ -103,7 +104,7 @@ checksum()
 # Parsing CLI Args
 [ $# = 0 ] && help
 while [ $# -gt 0 ]; do
-  CMD=$(grep -m 1 -Po "^## *$1, --\K[^= ]*|^##.* --\K${1#--}(?:[= ])" rand-file | sed -e "s/-/_/g")
+  CMD=$(grep -m 1 -Po "^## *$1, --\K[^= ]*|^##.* --\K${1#--}(?:[= ])" ${SCRIPT_DIR}/rand-file | sed -e "s/-/_/g")
   if [ -z "$CMD" ]; then echo "ERROR: Command '$1' not supported"; exit 1; fi
   shift; eval "$CMD" $@ || shift $? 2> /dev/null
 done
