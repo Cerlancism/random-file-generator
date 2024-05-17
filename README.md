@@ -19,7 +19,7 @@ No checksum verification
  - In memory checksum verification before written to file system
  
  
- ## Comments from OpenAI
+ ## GPT Comments
 This script is a utility that generates random files and can verify their integrity using a specified checksum function. When run, the script accepts several options and commands that control its behavior:
 
 - The -s or --size option specifies the size of the random files to generate, in bytes. The size can be specified using the numfmt iec notation (e.g., 1K, 1M, 1G, etc.), and the default value is 4K (4 kilobytes).
